@@ -1,0 +1,80 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>{{ lot.title }}</h1>
+    {% if user.is_authenticated %}
+    <form action="{% url 'lot' lot.id %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" name="{{button}}" value="{{button}}" >
+    </form>
+    {% endif %}
+    {% if creator and lot.status == 'Open' %}
+    <form action="{% url 'lot' lot.id %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" name="Close" value="Close" >
+    </form>
+    {% endif %}
+    <p>Created by <b>{{ lot.username }}</b>.</p>
+    <p><img src="{{ lot.image }}" width='50%' height='50%'></p>
+    <p>{{ lot.description }}</p>
+    <p>Lot started at {{ lot.time }} and will end at <b>{{ lot.end }}</b>.</p>
+    <p>Current bid is <b>{{ lot.max_bid }} Sheckels.</b></p>
+    {% if lot.status == 'Open' %}
+    <form action="{% url 'lot' lot.id %}" method="POST">
+        <p>
+            {% csrf_token %}
+            Your bid: {{ bid_form }}
+        </p>
+        <p>
+            <input type="submit" name="bid">
+        </p>
+    </form>
+    {% else %}
+    <p><b>{{ winner }}</b> is a Winner!</p>
+    {% endif %}
+    <h1>Bidding</h1>
+    <table width='60%'>
+        {% for bid in bids %}
+        <tr>
+            <td width=200>
+                {{ bid.time }}
+            </td>
+            <td width=150>
+                {{ bid.username }}
+            </td>
+            <td>
+                {{ bid.value }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h1>Comments</h1>
+    <form action="{% url 'lot' lot.id %}" method="POST">
+        <p>
+            {% csrf_token %}
+            New comment: 
+            <p>
+                {{ comment_form }}
+            </p>
+        </p>
+        <p>
+            <input type="submit" name="comment">
+        </p>
+    </form>
+    <table width='60%'>
+        {% for comment in comments %}
+        <tr>
+            <td width=200>
+                {{ comment.time }}
+            </td>
+            <td width=150>
+                {{ comment.username }}
+            </td>
+            <td>
+                {{ comment.description }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

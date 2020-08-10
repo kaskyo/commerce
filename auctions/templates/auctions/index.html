@@ -1,0 +1,40 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if category == None %}
+    <h1>Active Listings</h1>
+    {% else %}
+    <h1>{{ category }}</h1>
+    {% endif %}
+    {% for lot in active_lots %}
+    <table>
+        <tr>
+            <td>
+                <h1>
+                    <a href="lot/{{ lot.id }}">{{ lot.title }}</a>
+                </h1>
+            </td>
+            <td>
+                Created by <b>{{ lot.username }}.</b> Listing will end at <b>{{ lot.end }}.</b>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="{{ lot.image }}" width="320" height="180">
+            </td>
+            <td>
+                <table>
+                <tr>
+                    {{ lot.description }}
+                </tr>
+                <tr>
+                    <p>
+                        Current bid: {{ lot.max_bid }}.
+                    </p>
+                </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+{% endblock %}
