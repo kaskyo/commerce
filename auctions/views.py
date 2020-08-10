@@ -90,7 +90,7 @@ def lot(request, lot_id):
     if lot.end <= datetime.datetime.now(lot.end.tzinfo) and lot.status == 'Open' :
         lot.status = 'Closed'
         lot.save()
-    if 'bid' in request.POST and lot.status is 'Open':
+    if 'bid' in request.POST and lot.status == 'Open':
         bid_form = BidForm(request.POST)
     else:
         bid_form = BidForm(None)
@@ -99,21 +99,24 @@ def lot(request, lot_id):
     else:
         comment_form = CommentForm(None)
     if request.method == 'POST':
-        if bid_form.is_valid() is True and lot.status is 'Open':
+        if bid_form.is_valid() and lot.status == 'Open':
             bid = bid_form.save(commit=False)
             bid.username = request.user
             bid.lot_id = lot
             bid.save()
-        elif comment_form.is_valid() is True:
+        elif comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.username = request.user
             comment.lot_id = lot
             comment.save()
     bids = Bid.objects.filter(lot_id=lot_id).order_by('-value')
-    if bids.exists() and lot.status is 'Open':
-        if lot.max_bid < bids[0].value:
-            lot.max_bid = bids[0].value
-            lot.save()
+    winner = 'noone'
+    if bids.exists():
+        if lot.status == 'Open':
+            if lot.max_bid < bids[0].value:
+                lot.max_bid = bids[0].value
+                lot.save()
+        winner = bids[0].username
     comments = Comment.objects.filter(lot_id=lot_id).order_by('-time')
     if Lot.objects.filter(watchlist=request.user, id=lot_id).exists():
         toggle = 'unwatch'
@@ -128,7 +131,7 @@ def lot(request, lot_id):
         'comment_form': comment_form,
         'button': toggle,
         'creator': creator,
-        'winner': bids[0].username
+        'winner': winner
         })
 
 
